@@ -12,15 +12,26 @@ class ProductRepositoryImpl {
     int skip = Appconstants.skip,
   }) async {
     try {
+      print("Fetching products: limit=$limit, skip=$skip");
       final products = await _apiServices.fetchProducts(
         limit: limit,
         skip: skip,
       );
+      print("Fetched ${products.length} products");
       await _localStorage.saveproducts(products);
+      print("Saved ${products.length} products to cache");
       return products;
-    } catch (e) {
-      print("error fetching products $e");
+    } catch (e, stackTrace) {
+      print("Error fetching products: $e");
+      print("Stack trace: $stackTrace");
       final cached = _localStorage.getallproducts();
+      print("Found ${cached.length} cached products");
+      // If cache is empty and API failed, rethrow the error
+      if (cached.isEmpty) {
+        print("No cached products available, rethrowing error");
+        rethrow;
+      }
+      print("Returning ${cached.length} cached products");
       return cached;
     }
   }

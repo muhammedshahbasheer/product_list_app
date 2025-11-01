@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:product_list_app/data/model/product_model.dart';
@@ -20,16 +22,103 @@ class ProductListScreen extends StatelessWidget {
           builder: (context, state) {
             return state.maybeWhen(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (message) => Center(child: Text(message)),
+              initial: () => const Center(child: CircularProgressIndicator()),
+              error: (message) => Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error_outline, 
+                        size: 48, color: Colors.red),
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text(
+                        message,
+                        style: const TextStyle(color: Colors.red),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        context
+                            .read<ProductBloc>()
+                            .add(const ProductEvent.refreshProducts());
+                      },
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              ),
               orElse: () {
                 // Reactive Hive listener
-                return StreamBuilder<List<ProductModel>>(
-                  stream: repository.streamproducts(),
-                  builder: (context, snapshot) {
-                    final products = snapshot.data ?? [];
+                return BlocBuilder<ProductBloc, ProductState>(
+                  builder: (context, currentState) {
+                    return StreamBuilder<List<ProductModel>>(
+                      stream: repository.streamproducts(),
+                      builder: (context, snapshot) {
+                        // Check for errors in the stream
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.error_outline, 
+                                    size: 48, color: Colors.red),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Error: ${snapshot.error}',
+                                  style: const TextStyle(color: Colors.red),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 16),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    context
+                                        .read<ProductBloc>()
+                                        .add(const ProductEvent.refreshProducts());
+                                  },
+                                  child: const Text('Retry'),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
 
-                    if (products.isEmpty) {
-                      return const Center(child: Text('No products available.'));
+                        final products = snapshot.data ?? [];
+                        
+                        // If we're in loading state, show loading indicator
+                        if (currentState.maybeWhen(
+                          loading: () => true,
+                          orElse: () => false,
+                        )) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+
+                        if (products.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.inbox_outlined, 
+                                size: 48, color: Colors.grey),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'No products available.',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: () {
+                                context
+                                    .read<ProductBloc>()
+                                    .add(const ProductEvent.refreshProducts());
+                              },
+                              child: const Text('Refresh'),
+                            ),
+                          ],
+                        ),
+                      );
                     }
 
                     return NotificationListener<ScrollNotification>(
@@ -44,9 +133,29 @@ class ProductListScreen extends StatelessWidget {
                       },
                       child: RefreshIndicator(
                         onRefresh: () async {
-                          context
-                              .read<ProductBloc>()
-                              .add(const ProductEvent.refreshProducts());
+                          final completer = Completer<void>();
+                          final bloc = context.read<ProductBloc>();
+                          
+                          // Listen to state changes to know when refresh is complete
+                          final subscription = bloc.stream.listen((state) {
+                            state.maybeWhen(
+                              success: () {
+                                if (!completer.isCompleted) {
+                                  completer.complete();
+                                }
+                              },
+                              error: (_) {
+                                if (!completer.isCompleted) {
+                                  completer.complete();
+                                }
+                              },
+                              orElse: () {},
+                            );
+                          });
+                          
+                          bloc.add(const ProductEvent.refreshProducts());
+                          await completer.future;
+                          subscription.cancel();
                         },
                         child: ListView.builder(
                           itemCount: products.length,
@@ -89,6 +198,8 @@ class ProductListScreen extends StatelessWidget {
                           },
                         ),
                       ),
+                    );
+                      },
                     );
                   },
                 );
