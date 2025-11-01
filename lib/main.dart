@@ -1,26 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:product_list_app/core/constants.dart';
+import 'package:product_list_app/data/datasource/local/product_local_storage.dart';
+import 'package:product_list_app/data/datasource/remote/product_api_services.dart';
 import 'package:product_list_app/data/model/product_model.dart';
+import 'package:product_list_app/peresentation/screens/product_list_screen.dart';
+import 'data/repositories/product_repository_impl.dart';
 
-Future<void> main()async{
-   WidgetsFlutterBinding.ensureInitialized();  await Hive.initFlutter();
-Hive.registerAdapter(ProductModelAdapter());
-await Hive.openBox<ProductModel>(Appconstants.hiveproductbox);
-  runApp(const MyApp());
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  Hive.registerAdapter(ProductModelAdapter());
+  await Hive.openBox<ProductModel>('products');
+final apiService = ProductApiServices();
+  final localStorage = ProductLocalStorage();
+  final repository = ProductRepositoryImpl(apiService, localStorage);
+
+  runApp(MyApp(repository: repository));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final ProductRepositoryImpl repository;
 
-  // This widget is the root of your application.
+  const MyApp({Key? key, required this.repository}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(),
+      debugShowCheckedModeBanner: false,
+      title: 'Product App',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: ProductListScreen(repository: repository),
     );
   }
 }
-
-

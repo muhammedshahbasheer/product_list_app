@@ -8,7 +8,7 @@ part 'product_model.g.dart';
 
 @freezed
 @HiveType(typeId: 0)
-class ProductModel with _$ProductModel {
+ class ProductModel with _$ProductModel {
   const factory ProductModel({
     @HiveField(0) required int id,
     @HiveField(1) required String title,

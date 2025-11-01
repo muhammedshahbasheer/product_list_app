@@ -9,7 +9,7 @@ class ProductRepositoryImpl {
   ProductRepositoryImpl(this._apiServices, this._localStorage);
   Future<List<ProductModel>> fetchandcacheproducts({
     int limit = Appconstants.limit,
-    int skip = 0,
+    int skip = Appconstants.skip,
   }) async {
     try {
       final products = await _apiServices.fetchProducts(
