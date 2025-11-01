@@ -11,7 +11,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   Hive.registerAdapter(ProductModelAdapter());
-  await Hive.openBox<ProductModel>('products');
+  await Hive.openBox<ProductModel>('product_box');
 final apiService = ProductApiServices();
   final localStorage = ProductLocalStorage();
   final repository = ProductRepositoryImpl(apiService, localStorage);
