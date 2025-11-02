@@ -26,7 +26,6 @@ class ProductRepositoryImpl {
       print("Stack trace: $stackTrace");
       final cached = _localStorage.getallproducts();
       print("Found ${cached.length} cached products");
-      // If cache is empty and API failed, rethrow the error
       if (cached.isEmpty) {
         print("No cached products available, rethrowing error");
         rethrow;

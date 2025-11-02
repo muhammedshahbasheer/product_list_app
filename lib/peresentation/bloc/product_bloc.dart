@@ -39,7 +39,6 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       emit(const ProductState.loading());
       _skip = 0;
       try {
-        // Fetch fresh products (saveproducts will clear and save)
         await repository.fetchandcacheproducts(limit: _limit, skip: _skip);
         emit(const ProductState.success());
       } catch (e) {
