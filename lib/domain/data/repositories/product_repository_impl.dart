@@ -1,7 +1,7 @@
 import 'package:product_list_app/core/constants.dart';
-import 'package:product_list_app/data/datasource/local/product_local_storage.dart';
-import 'package:product_list_app/data/datasource/remote/product_api_services.dart';
-import 'package:product_list_app/data/model/product_model.dart';
+import 'package:product_list_app/domain/data/datasource/local/product_local_storage.dart';
+import 'package:product_list_app/domain/data/datasource/remote/product_api_services.dart';
+import 'package:product_list_app/domain/data/model/product_model.dart';
 
 class ProductRepositoryImpl {
   final ProductApiServices _apiServices;

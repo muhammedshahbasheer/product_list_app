@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:product_list_app/data/model/product_model.dart';
-import 'package:product_list_app/data/repositories/product_repository_impl.dart';
+import 'package:product_list_app/domain/data/model/product_model.dart';
+import 'package:product_list_app/domain/data/repositories/product_repository_impl.dart';
 import 'package:product_list_app/peresentation/bloc/product_bloc.dart';
 import 'package:product_list_app/peresentation/screens/product_detail_screen.dart';
 

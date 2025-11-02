@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:product_list_app/data/repositories/product_repository_impl.dart';
+import 'package:product_list_app/domain/data/repositories/product_repository_impl.dart';
 
 part 'product_event.dart';
 part 'product_state.dart';

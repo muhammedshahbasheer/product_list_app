@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:product_list_app/core/constants.dart';
-import 'package:product_list_app/data/model/product_model.dart';
+import 'package:product_list_app/domain/data/model/product_model.dart';
 
 class ProductLocalStorage {
   final Box<ProductModel> _productBox = Hive.box<ProductModel>(
